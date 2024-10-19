@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./dist/bundle.js">
+    <title>GOIDAPS</title>
+    <link rel="icon" href="./assets/icons/favicon.png" type="image/png">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="./assets/icons/favicon.png" alt="favicon" />
+            <h1>GoidaPS</h1>
+            • Редактор фото
+        </div>
+    </header>
+
+    <main>
+        <ul class="toolbar">
+            <li class="group">Файл
+                <ul class="dropdown">
+                    <li id="saveButton">Сохранить</li>
+                    <li id="openUploadForm">Загрузить</li>
+                </ul>
+            </li>
+            <li class="group">Редактирование
+                <ul class="dropdown">
+                    <li>Обрезать</li>
+                    <li>Изменить размер</li>
+                    <li class="has-submenu">Повернуть
+                        <img src="./assets/icons/right_arrow.svg" alt="right_arrow" id="svg" />
+                        <ul class="submenu">
+                            <li>Повернуть на 90° вправо</li>
+                            <li>Повернуть на 90° влево</li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">Отзеркалить
+                        <img src="./assets/icons/right_arrow.svg" alt="right_arrow" id="svg" />
+                        <ul class="submenu">
+                            <li>Отзеркалить по x</li>
+                            <li>Отзеркалить по y</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="group">Фильтры
+                <ul class="dropdown">
+                    <li>Тут будут фильтры</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <div class="preview">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <h2>Загрузить фото</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <img src="./assets/icons/file-upload.svg" alt="Upload" class="upload-icon" id="svg" />
+                        <span>Перетащите изображение сюда или нажмите для загрузки</span>
+                        <input type="file" id="fileInput" accept="image/*" hidden />
+                    </div>
+                    <button type="submit">Загрузить</button>
+                </form>
+            </div>
+        </div>  
+    </main>
+    
+    <script src="bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
+    <script src="./scripts/preview.js"></script>
+    <script src="./scripts/modals/upload.modal.js"></script>
+    <script src="./scripts/tools/save_upload.js"></script>
+</body>
+
+</html>
