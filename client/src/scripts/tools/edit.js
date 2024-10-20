@@ -1,3 +1,18 @@
+document.getElementById('flip-x').addEventListener('click', () => {
+    flipImage('x');
+});
+
+document.getElementById('flip-y').addEventListener('click', () => {
+    flipImage('y');
+});
+
+document.getElementById('rotate-left').addEventListener('click', () => {
+    rotateImage('left')
+});
+
+document.getElementById('rotate-right').addEventListener('click', () => {
+    rotateImage('right')
+})
 
 function flipImage(direction) {
     fetch(`http://localhost:8080/api/images/flip/${currentImageId}/${direction}`, {
@@ -18,13 +33,27 @@ function flipImage(direction) {
     })
     .catch(error => {
         console.error('Ошибка:', error);
-    });
+    })
 }
 
-document.getElementById('flip-x').addEventListener('click', () => {
-    flipImage('x');
-});
-
-document.getElementById('flip-y').addEventListener('click', () => {
-    flipImage('y');
-});
+function rotateImage(direction) {
+    fetch(`http://localhost:8080/api/images/rotate/${currentImageId}/${direction}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при повороте изображения')
+        }
+        return response.json
+    })
+    .then(data => {
+        console.log('Успешно:', data)
+        fetchImage(currentImageId)
+    })
+    .catch(error => {
+        console.error('Ошибка:', error)
+    })
+}

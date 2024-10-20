@@ -87,3 +87,30 @@ func FlipImageController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "изображение успешно отзеркалено"})
 }
+
+func RotateImageController(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый id"})
+		return
+	}
+
+	direction := c.Param("direction")
+	if direction != "left" {
+		direction = "right"
+	}
+
+	ok, err := services.RotateImage(id, direction)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось перевернуть изображение"})
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "изображение не найдено"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "изображение успешно перевернуто"})
+}

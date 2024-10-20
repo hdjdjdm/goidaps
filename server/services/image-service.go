@@ -169,3 +169,71 @@ func FlipImage(id primitive.ObjectID, direction string) (bool, error) {
 
 	return true, nil
 }
+
+func RotateImage(id primitive.ObjectID, direction string) (bool, error) {
+	collection := db.GetCollection()
+	var imageRecord models.Image
+	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&imageRecord)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, fmt.Errorf("изображение с таким ID не найдено")
+		}
+		return false, fmt.Errorf("не удалось получить изображение: %v", err)
+	}
+
+	imgFile, err := os.Open(imageRecord.Path)
+	if err != nil {
+		return false, fmt.Errorf("не удалось открыть файл изображения: %v", err)
+	}
+	defer imgFile.Close()
+
+	img, err := imaging.Decode(imgFile)
+	if err != nil {
+		return false, fmt.Errorf("не удалось декодировать изображение: %v", err)
+	}
+
+	var rotatedImg image.Image
+	if direction == "left" {
+		rotatedImg = imaging.Rotate90(img)
+	} else if direction == "right" {
+		rotatedImg = imaging.Rotate270(img)
+	} else {
+		return false, fmt.Errorf("неизвестное направление для поворота: %v", direction)
+	}
+
+	outFile, err := os.Create(imageRecord.Path)
+	if err != nil {
+		return false, fmt.Errorf("не удалось создать файл для сохранения: %v", err)
+	}
+	defer outFile.Close()
+
+	err = imaging.Encode(outFile, rotatedImg, imaging.PNG)
+	if err != nil {
+		return false, fmt.Errorf("не удалось сохранить повернутое изображение: %v", err)
+	}
+
+	newImgFile, err := os.Open(imageRecord.Path)
+	if err != nil {
+		return false, fmt.Errorf("не удалось открыть файл для рачета хеша: %v", err)
+	}
+	defer newImgFile.Close()
+
+	newHash, err := utils.CalculateFileHash(newImgFile)
+	if err != nil {
+		return false, fmt.Errorf("не удалось расчитать хеш файла: %v", err)
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"size": utils.FileSize(imageRecord.Path),
+			"hash": newHash,
+		},
+	}
+
+	_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": id}, update)
+	if err != nil {
+		return false, fmt.Errorf("не удалось обновить данные изображения в БД: %v", err)
+	}
+
+	return true, nil
+}
