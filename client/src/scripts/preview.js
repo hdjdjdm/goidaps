@@ -48,7 +48,7 @@ function initializeCanvas(imageURL) {
             top: 0,
             scaleX: 1,
             scaleY: 1,
-            selectable: true
+            selectable: false
         });
         canvas.add(img);
         canvas.renderAll();

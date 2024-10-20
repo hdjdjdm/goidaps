@@ -1,7 +1,9 @@
 let currentImageId = null;
+let uploadedFileName = null;
 
 function initialize() {
     loadCurrentImageId();
+    loadCurrentImageName();
     if (currentImageId) {
         fetchImage(currentImageId);
     }
@@ -15,41 +17,16 @@ function loadCurrentImageId() {
     }
 }
 
+function loadCurrentImageName() {
+    uploadedFileName = localStorage.getItem('currentImageName');
+    if (!uploadedFileName) {
+        console.log("Имя изображения не найдено в localStorage");
+    }
+}
+
 window.addEventListener('load', initialize);
 
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
 const saveButton = document.getElementById('saveButton');
-
-uploadArea.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    uploadArea.classList.add('highlight');
-});
-
-uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('highlight');
-});
-
-uploadArea.addEventListener('drop', (event) => {
-    event.preventDefault();
-    uploadArea.classList.remove('highlight');
-
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-        handleFiles(files);
-    }
-});
-
-uploadArea.addEventListener('click', () => {
-    fileInput.click();
-});
-
-fileInput.addEventListener('change', (event) => {
-    const files = event.target.files;
-    if (files.length > 0) {
-        handleFiles(files);
-    }
-});
 
 function handleFiles(files) {
     const formData = new FormData();
@@ -73,6 +50,7 @@ function handleFiles(files) {
         currentImageId = data.id;
         uploadedFileName = files[0].name;
         localStorage.setItem('currentImageId', currentImageId);
+        localStorage.setItem('currentImageName', uploadedFileName);
         fetchImage(currentImageId);
     })
     .catch(error => {
@@ -114,7 +92,7 @@ saveButton.addEventListener('click', function() {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
 
-                const filename = uploadedFileName || 'image.png'; 
+                const filename = uploadedFileName || 'GOIDAPS.png'; 
                 link.download = filename;
 
                 link.click();
