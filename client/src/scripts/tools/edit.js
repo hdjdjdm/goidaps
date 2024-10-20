@@ -1,7 +1,6 @@
-const imageId = localStorage.getItem('currentImageId');
 
 function flipImage(direction) {
-    fetch(`http://localhost:8080/api/images/flip/${imageId}/${direction}`, {
+    fetch(`http://localhost:8080/api/images/flip/${currentImageId}/${direction}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -15,7 +14,7 @@ function flipImage(direction) {
     })
     .then(data => {
         console.log('Успешно:', data);
-        fetchImage(imageId);
+        fetchImage(currentImageId);
     })
     .catch(error => {
         console.error('Ошибка:', error);

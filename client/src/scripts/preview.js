@@ -40,14 +40,15 @@ function initializeCanvas(imageURL) {
     }
 
     fabric.Image.fromURL(imageURL, (img) => {
-        const canvasCenterX = canvas.getWidth() / 2;
         img.set({
-            left: canvasCenterX - img.width / 2,
+            left: canvas.getWidth() / 2 - img.width / 2,
             top: 0,
             scaleX: 1,
-            scaleY: 1
+            scaleY: 1,
+            selectable: true
         });
         canvas.add(img);
+        canvas.renderAll();
         resizeCanvas();
     });
 
