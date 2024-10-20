@@ -4,36 +4,23 @@ import (
 	"context"
 	"fmt"
 	"image"
-	"io"
-	"math/rand"
 	"mime/multipart"
-	"os"
 	"path/filepath"
-	"strconv"
-	"time"
 
 	"goidaps/db"
 	"goidaps/models"
+	"goidaps/storage"
 	"goidaps/utils"
 
 	"github.com/disintegration/imaging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
-	now := time.Now()
-	year := now.Year()
-	month := int(now.Month())
-
-	rand.Seed(time.Now().UnixNano())
-	randomString := fmt.Sprintf("%02d%02d", rand.Intn(100), rand.Intn(100))
-
-	dirPath := filepath.Join("uploads", "images", strconv.Itoa(year), strconv.Itoa(month), randomString)
-	err := os.MkdirAll(dirPath, os.ModePerm)
+	dirPath, err := utils.CreateImageDir()
 	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось создать директорию: %v", err)
+		return primitive.ObjectID{}, err
 	}
 
 	fileName := filepath.Base(file.Filename)
@@ -50,28 +37,20 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 		return primitive.ObjectID{}, fmt.Errorf("не удалось вычислить хэш: %v", err)
 	}
 
-	collection := db.GetCollection()
-	var existingImage models.Image
-	err = collection.FindOne(context.TODO(), bson.M{"name": fileName, "hash": hash}).Decode(&existingImage)
-	if err == nil {
+	existingImage, found, err := storage.FindExistingImage(fileName, hash)
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+	if found {
 		return existingImage.ID, nil
-	} else if err != mongo.ErrNoDocuments {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось проверить существование изображения: %v", err)
 	}
 
 	if _, err := src.Seek(0, 0); err != nil {
 		return primitive.ObjectID{}, fmt.Errorf("не удалось сбросить указатель файла: %v", err)
 	}
 
-	out, err := os.Create(filePath)
-	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось создать файл: %v", err)
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, src)
-	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось записать файл: %v", err)
+	if err := utils.SaveFile(filePath, src); err != nil {
+		return primitive.ObjectID{}, err
 	}
 
 	image := models.Image{
@@ -82,12 +61,10 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 		Hash: hash,
 	}
 
-	insertResult, err := collection.InsertOne(context.TODO(), image)
+	imageID, err := storage.InsertImage(image)
 	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось сохранить данные в БД: %v", err)
+		return primitive.ObjectID{}, err
 	}
-
-	imageID := insertResult.InsertedID.(primitive.ObjectID)
 
 	return imageID, nil
 }
@@ -103,136 +80,78 @@ func GetImageByID(id primitive.ObjectID) (*models.Image, error) {
 }
 
 func FlipImage(id primitive.ObjectID, direction string) (bool, error) {
-	collection := db.GetCollection()
-	var imageRecord models.Image
-	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&imageRecord)
+	imageRecord, err := storage.GetImageByID(id)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false, fmt.Errorf("изображение с таким ID не найдено")
-		}
-		return false, fmt.Errorf("не удалось получить изображение: %v", err)
+		return false, err
 	}
 
-	imgFile, err := os.Open(imageRecord.Path)
+	img, err := utils.OpenImage(imageRecord.Path)
 	if err != nil {
-		return false, fmt.Errorf("не удалось открыть файл изображения: %v", err)
-	}
-	defer imgFile.Close()
-
-	img, err := imaging.Decode(imgFile)
-	if err != nil {
-		return false, fmt.Errorf("не удалось декодировать изображение: %v", err)
+		return false, err
 	}
 
 	var flippedImg image.Image
-	if direction == "x" {
+	switch direction {
+	case "x":
 		flippedImg = imaging.FlipH(img)
-	} else if direction == "y" {
+	case "y":
 		flippedImg = imaging.FlipV(img)
-	} else {
+	default:
 		return false, fmt.Errorf("неизвестное направление отзеркаливания: %s", direction)
 	}
 
-	outFile, err := os.Create(imageRecord.Path)
+	err = utils.SaveImage(imageRecord.Path, flippedImg, imageRecord.Type)
 	if err != nil {
-		return false, fmt.Errorf("не удалось создать файл для сохранения: %v", err)
-	}
-	defer outFile.Close()
-
-	err = imaging.Encode(outFile, flippedImg, imaging.PNG)
-	if err != nil {
-		return false, fmt.Errorf("не удалось сохранить отзеркаленное изображение: %v", err)
+		return false, err
 	}
 
-	newImgFile, err := os.Open(imageRecord.Path)
+	newHash, err := utils.CalculateImageHash(imageRecord)
 	if err != nil {
-		return false, fmt.Errorf("не удалось открыть файл для расчета хеша: %v", err)
-	}
-	defer newImgFile.Close()
-
-	newHash, err := utils.CalculateFileHash(newImgFile)
-	if err != nil {
-		return false, fmt.Errorf("не удалось рассчитать хеш файла: %v", err)
+		return false, err
 	}
 
-	update := bson.M{
-		"$set": bson.M{
-			"size": utils.FileSize(imageRecord.Path),
-			"hash": newHash,
-		},
-	}
-
-	_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": id}, update)
+	err = storage.UpdateImageRecord(id, imageRecord.Path, newHash)
 	if err != nil {
-		return false, fmt.Errorf("не удалось обновить данные изображения в БД: %v", err)
+		return false, err
 	}
 
 	return true, nil
 }
 
 func RotateImage(id primitive.ObjectID, direction string) (bool, error) {
-	collection := db.GetCollection()
-	var imageRecord models.Image
-	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&imageRecord)
+	imageRecord, err := storage.GetImageByID(id)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false, fmt.Errorf("изображение с таким ID не найдено")
-		}
-		return false, fmt.Errorf("не удалось получить изображение: %v", err)
+		return false, err
 	}
 
-	imgFile, err := os.Open(imageRecord.Path)
+	img, err := utils.OpenImage(imageRecord.Path)
 	if err != nil {
-		return false, fmt.Errorf("не удалось открыть файл изображения: %v", err)
-	}
-	defer imgFile.Close()
-
-	img, err := imaging.Decode(imgFile)
-	if err != nil {
-		return false, fmt.Errorf("не удалось декодировать изображение: %v", err)
+		return false, err
 	}
 
 	var rotatedImg image.Image
-	if direction == "left" {
+	switch direction {
+	case "left":
 		rotatedImg = imaging.Rotate90(img)
-	} else if direction == "right" {
+	case "right":
 		rotatedImg = imaging.Rotate270(img)
-	} else {
+	default:
 		return false, fmt.Errorf("неизвестное направление для поворота: %v", direction)
 	}
 
-	outFile, err := os.Create(imageRecord.Path)
+	err = utils.SaveImage(imageRecord.Path, rotatedImg, imageRecord.Type)
 	if err != nil {
-		return false, fmt.Errorf("не удалось создать файл для сохранения: %v", err)
-	}
-	defer outFile.Close()
-
-	err = imaging.Encode(outFile, rotatedImg, imaging.PNG)
-	if err != nil {
-		return false, fmt.Errorf("не удалось сохранить повернутое изображение: %v", err)
+		return false, err
 	}
 
-	newImgFile, err := os.Open(imageRecord.Path)
+	newHash, err := utils.CalculateImageHash(imageRecord)
 	if err != nil {
-		return false, fmt.Errorf("не удалось открыть файл для рачета хеша: %v", err)
-	}
-	defer newImgFile.Close()
-
-	newHash, err := utils.CalculateFileHash(newImgFile)
-	if err != nil {
-		return false, fmt.Errorf("не удалось расчитать хеш файла: %v", err)
+		return false, err
 	}
 
-	update := bson.M{
-		"$set": bson.M{
-			"size": utils.FileSize(imageRecord.Path),
-			"hash": newHash,
-		},
-	}
-
-	_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": id}, update)
+	err = storage.UpdateImageRecord(id, imageRecord.Path, newHash)
 	if err != nil {
-		return false, fmt.Errorf("не удалось обновить данные изображения в БД: %v", err)
+		return false, err
 	}
 
 	return true, nil
