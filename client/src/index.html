@@ -80,11 +80,10 @@
                     <input type="number" id="height" placeholder="Введите высоту" />
         
                     <div>
-                        <label>
-                            <input type="radio" name="aspect-ratio" value="lock" checked /> Сохранить соотношение сторон
-                        </label>
-                        <label>
-                            <input type="radio" name="aspect-ratio" value="unlock" /> Отключить соотношение сторон
+                        <label for="lock-aspect-ratio" class="custom-checkbox">
+                            <input type="checkbox" id="lock-aspect-ratio" checked />
+                            <span class="checkbox-icon"></span>
+                            Сохранить соотношение сторон
                         </label>
                     </div>
         
@@ -93,6 +92,7 @@
                 </form>
             </div>
         </div>
+        
         
         <span class="load" id="loading">
             <img src="./assets/icons/loading.svg" alt="loading" id="svg" />

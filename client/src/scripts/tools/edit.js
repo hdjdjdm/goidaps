@@ -63,19 +63,20 @@ function resizeImage(width, height) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ width: width, height: height })
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Ошибка при изменении размера изображения')
         }
-        return response.json
+        return response.json()
     })
     .then(data => {
         console.log('Успешно:', data)
         fetchImage(currentImageId)
     })
     .catch(error => {
-        console.error('Ошибка', err)
+        console.error('Ошибка', error)
     })
 }
