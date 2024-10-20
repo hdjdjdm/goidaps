@@ -36,6 +36,7 @@ function initializeCanvas(imageURL) {
         canvas = new fabric.Canvas('canvas');
         canvas.selection = false;
     } else {
+        removeCanvasEvents();
         canvas.clear();
     }
 
@@ -52,36 +53,11 @@ function initializeCanvas(imageURL) {
         resizeCanvas();
     });
 
-    canvas.on('mouse:wheel', (opt) => {
-        opt.e.preventDefault();
-        opt.e.stopPropagation();
+    setCanvasEvents();
+}
 
-        const delta = opt.e.deltaY;
-        let zoom = canvas.getZoom();
-        
-        let zoomStep = 0.05;
-        let newZoom = zoom - (delta > 0 ? zoomStep : -zoomStep);
-
-        if (newZoom > 5) newZoom = 5;
-        if (newZoom < 0.5) newZoom = 0.5;
-
-        const centerX = canvas.getWidth() / 2;
-        const centerY = canvas.getHeight() / 2;
-
-        const zoomPoint = new fabric.Point(centerX / zoom, centerY / zoom);
-
-        canvas.zoomToPoint(zoomPoint, newZoom);
-        canvas.renderAll();
-        updateZoomValue(newZoom);
-    });
-
-    const zoomSlider = document.getElementById('zoom-slider');
-    zoomSlider.addEventListener('input', (e) => {
-        const zoomValue = e.target.value / 100;
-        canvas.setZoom(zoomValue);
-        updateZoomValue(zoomValue);
-        canvas.renderAll();
-    });
+function setCanvasEvents() {
+    canvas.on('mouse:wheel', handleMouseWheel);
 
     let isDragging = false;
     let lastPosX;
@@ -111,6 +87,36 @@ function initializeCanvas(imageURL) {
     canvas.on('mouse:up', () => {
         isDragging = false;
     });
+}
+
+function removeCanvasEvents() {
+    canvas.off('mouse:wheel');
+    canvas.off('mouse:down');
+    canvas.off('mouse:move');
+    canvas.off('mouse:up');
+}
+
+function handleMouseWheel(opt) {
+    opt.e.preventDefault();
+    opt.e.stopPropagation();
+
+    const delta = opt.e.deltaY;
+    let zoom = canvas.getZoom();
+    
+    let zoomStep = 0.05;
+    let newZoom = zoom - (delta > 0 ? zoomStep : -zoomStep);
+
+    if (newZoom > 5) newZoom = 5;
+    if (newZoom < 0.5) newZoom = 0.5;
+
+    const centerX = canvas.getWidth() / 2;
+    const centerY = canvas.getHeight() / 2;
+
+    const zoomPoint = new fabric.Point(centerX / zoom, centerY / zoom);
+
+    canvas.zoomToPoint(zoomPoint, newZoom);
+    canvas.renderAll();
+    updateZoomValue(newZoom);
 }
 
 function updateZoomValue(zoom) {
