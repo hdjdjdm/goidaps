@@ -1,4 +1,4 @@
-const modal = document.getElementById('modal');
+const modal = document.getElementById('upload-modal');
 const openFormButton = document.getElementById('openUploadForm');
 
 openFormButton.addEventListener('click', function() {

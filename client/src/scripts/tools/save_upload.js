@@ -34,11 +34,48 @@ fileInput.addEventListener('change', (event) => {
 });
 
 function handleFiles(files) {
-    const file = files[0];
-    if (file) {
-        uploadedFileName = file.name;
-        console.log(`Файл загружен: ${uploadedFileName}`);
-    }
+    const formData = new FormData();
+    formData.append("image", files[0]);
+
+    fetch('http://localhost:8080/api/images/upload', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Успешно загружено:', data);
+        
+        const imageId = data.id;
+        fetchImage(imageId);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+    });
+}
+
+function fetchImage(id) {
+    fetch(`http://localhost:8080/api/images/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Ошибка загрузки изображения");
+            }
+            return response.blob();
+        })
+        .then(imageBlob => {
+            const imageURL = URL.createObjectURL(imageBlob);
+            initializeCanvas(imageURL);
+
+            const upload_modal = document.getElementById("upload-modal");
+            upload_modal.style.display = 'none';
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+        });
 }
 
 saveButton.addEventListener('click', function() {
