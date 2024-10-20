@@ -176,18 +176,18 @@ header {
                 height: 50px;
                 margin-bottom: 10px;
             }
-
-            button {
-                outline: none;
-                border: none;
-                background-color: $primary-color;
-                color: $text-color;
-                font-size: 16px;
-                padding: 5px 2px;
-                width: 100px;
-                border-radius: 5px;
-                margin: 0 auto;
-            }
+        }
+        
+        button {
+            outline: none;
+            border: none;
+            background-color: $primary-color;
+            color: $text-color;
+            font-size: 16px;
+            padding: 5px 2px;
+            width: 100px;
+            border-radius: 5px;
+            margin: 0 auto;
         }
     }
 }

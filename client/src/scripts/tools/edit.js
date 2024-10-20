@@ -57,3 +57,25 @@ function rotateImage(direction) {
         console.error('Ошибка:', error)
     })
 }
+
+function resizeImage(width, height) {
+    fetch(`http://localhost:8080/api/images/resize/${currentImageId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при изменении размера изображения')
+        }
+        return response.json
+    })
+    .then(data => {
+        console.log('Успешно:', data)
+        fetchImage(currentImageId)
+    })
+    .catch(error => {
+        console.error('Ошибка', err)
+    })
+}

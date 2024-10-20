@@ -1,12 +1,12 @@
-const modal = document.getElementById('upload-modal');
-const openFormButton = document.getElementById('openUploadForm');
+const uploadModal = document.getElementById('upload-modal');
+const openUploadFormButton = document.getElementById('openUploadForm');
 
-openFormButton.addEventListener('click', function() {
-    modal.style.display = 'block';
+openUploadFormButton.addEventListener('click', function() {
+    uploadModal.style.display = 'block';
 });
 
 window.addEventListener('click', function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
+    if (event.target == uploadModal) {
+        uploadModal.style.display = 'none';
     }
 });

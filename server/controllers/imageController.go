@@ -114,3 +114,40 @@ func RotateImageController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "изображение успешно перевернуто"})
 }
+
+func ResizeImageController(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый id"})
+		return
+	}
+
+	var resizeRequest struct {
+		Width  int `json:"width" binding:"required"`
+		Height int `json:"height" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&resizeRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимые параметры для изменения размера"})
+		return
+	}
+
+	if resizeRequest.Width <= 0 || resizeRequest.Height <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ширина и высота должны быть положительными значениями"})
+		return
+	}
+
+	ok, err := services.ResizeImage(id, resizeRequest.Width, resizeRequest.Height)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось изменить размер изображение"})
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "изображение не найдено"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "размер изображения успешно изменено"})
+}

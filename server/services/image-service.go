@@ -6,7 +6,6 @@ import (
 	"image"
 	"mime/multipart"
 	"path/filepath"
-	"time"
 
 	"goidaps/db"
 	"goidaps/models"
@@ -73,7 +72,7 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 func GetImageByID(id primitive.ObjectID) (*models.Image, error) {
 	collection := db.GetCollection()
 
-	time.Sleep(1 * time.Second)
+	// time.Sleep(1 * time.Second)
 
 	var image models.Image
 	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&image)
@@ -144,6 +143,37 @@ func RotateImage(id primitive.ObjectID, direction string) (bool, error) {
 	}
 
 	err = utils.SaveImage(imageRecord.Path, rotatedImg, imageRecord.Type)
+	if err != nil {
+		return false, err
+	}
+
+	newHash, err := utils.CalculateImageHash(imageRecord)
+	if err != nil {
+		return false, err
+	}
+
+	err = storage.UpdateImageRecord(id, imageRecord.Path, newHash)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func ResizeImage(id primitive.ObjectID, width, heigth int) (bool, error) {
+	imageRecord, err := storage.GetImageByID(id)
+	if err != nil {
+		return false, err
+	}
+
+	img, err := utils.OpenImage(imageRecord.Path)
+	if err != nil {
+		return false, err
+	}
+
+	newImg := imaging.Resize(img, width, heigth, imaging.Lanczos)
+
+	err = utils.SaveImage(imageRecord.Path, newImg, imageRecord.Type)
 	if err != nil {
 		return false, err
 	}

@@ -28,8 +28,8 @@
             </li>
             <li class="group">Редактирование
                 <ul class="dropdown">
-                    <li>Обрезать</li>
-                    <li>Изменить размер</li>
+                    <li id="crop">Обрезать</li>
+                    <li id="resize">Изменить размер</li>
                     <li class="has-submenu">Повернуть
                         <img src="./assets/icons/right_arrow.svg" alt="right_arrow" id="svg" />
                         <ul class="submenu">
@@ -69,6 +69,30 @@
                 </form>
             </div>
         </div>
+
+        <div id="resize-modal" class="modal">
+            <div class="modal-content">
+                <form id="resize-form">
+                    <label for="width">Ширина:</label>
+                    <input type="number" id="width" placeholder="Введите ширину" />
+        
+                    <label for="height">Высота:</label>
+                    <input type="number" id="height" placeholder="Введите высоту" />
+        
+                    <div>
+                        <label>
+                            <input type="radio" name="aspect-ratio" value="lock" checked /> Сохранить соотношение сторон
+                        </label>
+                        <label>
+                            <input type="radio" name="aspect-ratio" value="unlock" /> Отключить соотношение сторон
+                        </label>
+                    </div>
+        
+                    <button type="button" id="resize-btn">Изменить размер</button>
+                    <button type="button" id="close-modal">Закрыть</button>
+                </form>
+            </div>
+        </div>
         
         <span class="load" id="loading">
             <img src="./assets/icons/loading.svg" alt="loading" id="svg" />
@@ -80,10 +104,13 @@
     <script src="bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
     <script src="./scripts/preview.js"></script>
-    <script src="./scripts/modals/upload.modal.js"></script>
+
     <script src="./scripts/tools/save_upload.js"></script>
     <script src="./scripts/tools/edit.js"></script>
     <script src="./scripts/loading.js"></script>
+
+    <script src="./scripts/modals/upload.modal.js"></script>
+    <script src="./scripts/modals/resize.modal.js"></script>
 </body>
 
 </html>
