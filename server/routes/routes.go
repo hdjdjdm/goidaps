@@ -11,5 +11,6 @@ func SetupRoutes(router *gin.Engine) {
 	{
 		api.POST("/images/upload", controllers.UploadImageController)
 		api.GET("/images/:id", controllers.GetImageController)
+		api.POST("/images/flip/:id/:direction", controllers.FlipImageController)
 	}
 }

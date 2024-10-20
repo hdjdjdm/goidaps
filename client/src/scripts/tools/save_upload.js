@@ -1,7 +1,19 @@
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const saveButton = document.getElementById('saveButton');
+let currentImageId = null;
 let uploadedFileName = '';
+
+function loadCurrentImageId() {
+    currentImageId = localStorage.getItem('currentImageId');
+    if (currentImageId) {
+        fetchImage(currentImageId);
+    } else {
+        console.log("Изображение не найдено в localStorage");
+    }
+}
+
+window.addEventListener('load', loadCurrentImageId);
 
 uploadArea.addEventListener('dragover', (event) => {
     event.preventDefault();
@@ -43,18 +55,23 @@ function handleFiles(files) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`Ошибка: ${response.statusText}`);
+            return response.json().then(errData => {
+                throw new Error(`Ошибка: ${errData.error || response.statusText}`);
+            });
         }
         return response.json();
     })
     .then(data => {
         console.log('Успешно загружено:', data);
         
-        const imageId = data.id;
-        fetchImage(imageId);
+        currentImageId = data.id;
+        uploadedFileName = files[0].name;
+        localStorage.setItem('currentImageId', currentImageId);
+        fetchImage(currentImageId);
     })
     .catch(error => {
         console.error('Ошибка:', error);
+        alert(error.message);
     });
 }
 

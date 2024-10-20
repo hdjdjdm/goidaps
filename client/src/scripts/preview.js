@@ -26,7 +26,7 @@ function resizeCanvas() {
 window.addEventListener('load', () => {
     initializeCanvas('./assets/icons/test/preview.jpg');
     resizeCanvas();
-    updateZoomValue(canvas.getZoom()); // Инициализация значения зума
+    updateZoomValue(canvas.getZoom());
 });
 
 window.addEventListener('resize', resizeCanvas);
@@ -54,35 +54,31 @@ function initializeCanvas(imageURL) {
     canvas.on('mouse:wheel', (opt) => {
         opt.e.preventDefault();
         opt.e.stopPropagation();
-    
+
         const delta = opt.e.deltaY;
         let zoom = canvas.getZoom();
         
-        // Используйте меньший шаг для зума, чтобы сделать его более плавным
         let zoomStep = 0.05;
         let newZoom = zoom - (delta > 0 ? zoomStep : -zoomStep);
-    
+
         if (newZoom > 5) newZoom = 5;
         if (newZoom < 0.5) newZoom = 0.5;
 
-        // Получаем координаты курсора относительно канваса
-        const pointer = canvas.getPointer(opt.e);
-        const zoomPoint = new fabric.Point(
-            (pointer.x - canvas.viewportTransform[4]) / zoom,
-            (pointer.y - canvas.viewportTransform[5]) / zoom
-        );
+        const centerX = canvas.getWidth() / 2;
+        const centerY = canvas.getHeight() / 2;
+
+        const zoomPoint = new fabric.Point(centerX / zoom, centerY / zoom);
 
         canvas.zoomToPoint(zoomPoint, newZoom);
         canvas.renderAll();
-        updateZoomValue(newZoom); // Обновляем значение зума
+        updateZoomValue(newZoom);
     });
 
-    // Обработчик изменения ползунка
     const zoomSlider = document.getElementById('zoom-slider');
     zoomSlider.addEventListener('input', (e) => {
-        const zoomValue = e.target.value / 100; // Преобразуем в процент
+        const zoomValue = e.target.value / 100;
         canvas.setZoom(zoomValue);
-        updateZoomValue(zoomValue); // Обновляем значение зума
+        updateZoomValue(zoomValue);
         canvas.renderAll();
     });
 
@@ -116,8 +112,7 @@ function initializeCanvas(imageURL) {
     });
 }
 
-// Функция для обновления значения зума
 function updateZoomValue(zoom) {
     const zoomValue = document.getElementById('zoom-value');
-    zoomValue.textContent = Math.round(zoom * 100) + '%'; // Устанавливаем значение зума в процентах
+    zoomValue.textContent = Math.round(zoom * 100) + '%';
 }
