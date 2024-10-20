@@ -6,6 +6,7 @@ import (
 	"image"
 	"mime/multipart"
 	"path/filepath"
+	"time"
 
 	"goidaps/db"
 	"goidaps/models"
@@ -71,6 +72,9 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 
 func GetImageByID(id primitive.ObjectID) (*models.Image, error) {
 	collection := db.GetCollection()
+
+	time.Sleep(1 * time.Second)
+
 	var image models.Image
 	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&image)
 	if err != nil {

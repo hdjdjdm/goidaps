@@ -1,19 +1,25 @@
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const saveButton = document.getElementById('saveButton');
 let currentImageId = null;
-let uploadedFileName = '';
+
+function initialize() {
+    loadCurrentImageId();
+    if (currentImageId) {
+        fetchImage(currentImageId);
+    }
+    resizeCanvas();
+}
 
 function loadCurrentImageId() {
     currentImageId = localStorage.getItem('currentImageId');
-    if (currentImageId) {
-        fetchImage(currentImageId);
-    } else {
+    if (!currentImageId) {
         console.log("Изображение не найдено в localStorage");
     }
 }
 
-window.addEventListener('load', loadCurrentImageId);
+window.addEventListener('load', initialize);
+
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const saveButton = document.getElementById('saveButton');
 
 uploadArea.addEventListener('dragover', (event) => {
     event.preventDefault();
@@ -76,6 +82,7 @@ function handleFiles(files) {
 }
 
 function fetchImage(id) {
+    showLoading()
     const timestamp = new Date().getTime();
     fetch(`http://localhost:8080/api/images/${id}?t=${timestamp}`)
         .then(response => {
@@ -85,6 +92,7 @@ function fetchImage(id) {
             return response.blob();
         })
         .then(imageBlob => {
+            hideLoading()
             const imageURL = URL.createObjectURL(imageBlob);
             initializeCanvas(imageURL);
 
@@ -92,6 +100,7 @@ function fetchImage(id) {
             upload_modal.style.display = 'none';
         })
         .catch(error => {
+            hideLoading()
             console.error("Ошибка:", error);
         });
 }

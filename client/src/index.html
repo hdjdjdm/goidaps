@@ -55,11 +55,6 @@
         
         <div class="preview">
             <canvas id="canvas"></canvas>
-
-            <div class="zoom-control">
-                <span id="zoom-value">100%</span>
-                <input type="range" id="zoom-slider" min="50" max="500" value="100" />
-            </div>
         </div>
 
         <div id="upload-modal" class="modal">
@@ -74,6 +69,12 @@
                 </form>
             </div>
         </div>
+        
+        <span class="load" id="loading">
+            <img src="./assets/icons/loading.svg" alt="loading" id="svg" />
+            Загрузка...
+        </span>
+
     </main>
     
     <script src="bundle.js"></script>
@@ -82,6 +83,7 @@
     <script src="./scripts/modals/upload.modal.js"></script>
     <script src="./scripts/tools/save_upload.js"></script>
     <script src="./scripts/tools/edit.js"></script>
+    <script src="./scripts/loading.js"></script>
 </body>
 
 </html>

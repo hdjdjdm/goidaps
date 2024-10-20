@@ -24,9 +24,11 @@ function resizeCanvas() {
 }
 
 window.addEventListener('load', () => {
-    initializeCanvas('./assets/icons/test/preview.jpg');
+    initializeCanvas(currentImageId);
     resizeCanvas();
-    updateZoomValue(canvas.getZoom());
+
+    const initialZoom = 1;
+    canvas.setZoom(initialZoom);
 });
 
 window.addEventListener('resize', resizeCanvas);
@@ -116,10 +118,4 @@ function handleMouseWheel(opt) {
 
     canvas.zoomToPoint(zoomPoint, newZoom);
     canvas.renderAll();
-    updateZoomValue(newZoom);
-}
-
-function updateZoomValue(zoom) {
-    const zoomValue = document.getElementById('zoom-value');
-    zoomValue.textContent = Math.round(zoom * 100) + '%';
 }
