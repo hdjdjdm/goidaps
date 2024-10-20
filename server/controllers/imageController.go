@@ -151,3 +151,42 @@ func ResizeImageController(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "размер изображения успешно изменено"})
 }
+
+func CropImageController(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый id"})
+		return
+	}
+
+	var cropRequest struct {
+		X0 int `json:"x0" binding:"required"`
+		Y0 int `json:"y0" binding:"required"`
+		X1 int `json:"x1" binding:"required"`
+		Y1 int `json:"y1" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&cropRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимые параметры для обрезки"})
+		return
+	}
+
+	if cropRequest.X0 < 0 || cropRequest.Y0 < 0 || cropRequest.X1 < 0 || cropRequest.Y1 < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "координаты должны быть положительными значениями"})
+		return
+	}
+
+	ok, err := services.CropImage(id, cropRequest.X0, cropRequest.Y0, cropRequest.X1, cropRequest.Y1)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось обрезать изображение"})
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "изображение не найдено"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "изображение обрезалось успешно изменено"})
+}

@@ -190,3 +190,34 @@ func ResizeImage(id primitive.ObjectID, width, heigth int) (bool, error) {
 
 	return true, nil
 }
+
+func CropImage(id primitive.ObjectID, x0, y0, x1, y1 int) (bool, error) {
+	imageRecord, err := storage.GetImageByID(id)
+	if err != nil {
+		return false, err
+	}
+
+	img, err := utils.OpenImage(imageRecord.Path)
+	if err != nil {
+		return false, err
+	}
+
+	newImg := imaging.Crop(img, image.Rect(x0, y0, x1, y1))
+
+	err = utils.SaveImage(imageRecord.Path, newImg, imageRecord.Type)
+	if err != nil {
+		return false, err
+	}
+
+	newHash, err := utils.CalculateImageHash(imageRecord)
+	if err != nil {
+		return false, err
+	}
+
+	err = storage.UpdateImageRecord(id, imageRecord.Path, newHash)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
