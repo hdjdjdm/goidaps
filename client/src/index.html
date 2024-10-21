@@ -4,7 +4,6 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./dist/bundle.js">
     <title>GOIDAPS</title>
     <link rel="icon" href="./assets/icons/favicon.png" type="image/png">
 </head>
@@ -57,6 +56,15 @@
             <canvas id="canvas"></canvas>
         </div>
 
+        <!-- <div id="crop-modal" class="modal">
+            <div class="modal-content">
+                <h2>Обрезать изображение</h2>
+                <img id="image-to-crop" style="max-width: 100%;" />
+                <button type="button" id="crop-btn">Обрезать</button>
+                <button type="button" id="close-crop-modal">Закрыть</button>
+            </div>
+        </div> -->
+
         <span class="load" id="loading">
             <img src="./assets/icons/loading.svg" alt="loading" id="svg" />
             Загрузка...
@@ -64,15 +72,6 @@
     </main>
     
     <script src="bundle.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
-    <script src="./scripts/preview.js"></script>
-
-    <script src="./scripts/tools/save_upload.js"></script>
-    <script src="./scripts/tools/edit.js"></script>
-    <script src="./scripts/loading.js"></script>
-
-    <script src="./scripts/modals/upload.modal.js"></script>
-    <script src="./scripts/modals/resize.modal.js"></script>
 </body>
 
 </html>

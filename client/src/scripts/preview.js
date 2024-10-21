@@ -1,12 +1,13 @@
-const canvasElement = document.getElementById('canvas');
+import { Canvas, FabricImage, Point } from 'fabric';
+
 const previewContainer = document.querySelector('.preview');
 
 const MIN_CANVAS_SIZE = 300;
 const MAX_CANVAS_SIZE = 3000;
 
-let canvas;
+export let canvas;
 
-function resizeCanvas() {
+export function resizeCanvas() {
     if (!canvas) return;
 
     let newWidth = previewContainer.clientWidth;
@@ -23,39 +24,50 @@ function resizeCanvas() {
     canvas.renderAll();
 }
 
-window.addEventListener('load', () => {
-    initializeCanvas(currentImageId);
-    resizeCanvas();
-
-    const initialZoom = 1;
-    canvas.setZoom(initialZoom);
-});
-
 window.addEventListener('resize', resizeCanvas);
 
-function initializeCanvas(imageURL) {
+export function initializeCanvas(imageURL) {
     if (!canvas) {
-        canvas = new fabric.Canvas('canvas');
+        canvas = new Canvas('canvas');
         canvas.selection = false;
     } else {
         removeCanvasEvents();
         canvas.clear();
     }
 
-    fabric.Image.fromURL(imageURL, (img) => {
-        img.set({
-            left: canvas.getWidth() / 2 - img.width / 2,
-            top: 0,
-            scaleX: 1,
-            scaleY: 1,
-            selectable: false
-        });
-        canvas.add(img);
-        canvas.renderAll();
-        resizeCanvas();
-    });
+    const initialZoom = 1;
+    canvas.setZoom(initialZoom);
+    resizeCanvas();
 
-    setCanvasEvents();
+    const imgElement = new Image();
+    imgElement.src = imageURL;
+    imgElement.onload = () => {
+        const fabricImg = new FabricImage(imgElement, {
+            selectable: false,
+        });
+    
+        canvas.add(fabricImg);
+    
+        const imgCenterX = fabricImg.getScaledWidth() / 2;
+        const imgCenterY = fabricImg.getScaledHeight() / 2;
+        
+        const canvasCenterX = canvas.getWidth() / 2;
+        const canvasCenterY = canvas.getHeight() / 2;
+    
+        const vpt = canvas.viewportTransform;
+        vpt[4] = canvasCenterX - imgCenterX;
+        vpt[5] = canvasCenterY - imgCenterY;
+    
+        canvas.setViewportTransform(vpt);
+    
+        canvas.renderAll();
+    
+        setCanvasEvents();
+    };
+
+    imgElement.onerror = () => {
+        console.error("Ошибка загрузки изображения с URL:", imageURL);
+    };
 }
 
 function setCanvasEvents() {
@@ -114,7 +126,7 @@ function handleMouseWheel(opt) {
     const centerX = canvas.getWidth() / 2;
     const centerY = canvas.getHeight() / 2;
 
-    const zoomPoint = new fabric.Point(centerX / zoom, centerY / zoom);
+    const zoomPoint = new Point(centerX / zoom, centerY / zoom);
 
     canvas.zoomToPoint(zoomPoint, newZoom);
     canvas.renderAll();

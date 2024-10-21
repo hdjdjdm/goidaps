@@ -1,3 +1,6 @@
+import { canvas } from '../preview';
+import { resizeImage } from '../tools/edit'
+
 const resizeModal = document.createElement('div');
 resizeModal.id = 'resize-modal';
 resizeModal.className = 'modal';

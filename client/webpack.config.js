@@ -12,6 +12,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader']
+      },
+      {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
@@ -25,7 +29,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      inject: true,
+      inject: false,
     }),
     new CopyWebpackPlugin({
       patterns: [

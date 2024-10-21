@@ -1,3 +1,5 @@
+import { handleFiles } from "../tools/save_upload";
+
 const uploadModal = document.createElement('div');
 uploadModal.id = 'upload-modal';
 uploadModal.className = 'modal';

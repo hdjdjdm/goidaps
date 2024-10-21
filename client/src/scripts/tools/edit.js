@@ -1,3 +1,5 @@
+import { currentImageId, fetchImage } from "./save_upload";
+
 document.getElementById('flip-x').addEventListener('click', () => {
     flipImage('x');
 });
@@ -58,7 +60,7 @@ function rotateImage(direction) {
     })
 }
 
-function resizeImage(width, height) {
+export function resizeImage(width, height) {
     fetch(`http://localhost:8080/api/images/resize/${currentImageId}`, {
         method: 'POST',
         headers: {
@@ -81,7 +83,7 @@ function resizeImage(width, height) {
     })
 }
 
-function resizeImage(x0, y0, x1, y1) {
+export function cropImage(x0, y0, x1, y1) {
     fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
         method: 'POST',
         headers: {

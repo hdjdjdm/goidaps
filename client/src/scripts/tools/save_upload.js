@@ -1,4 +1,7 @@
-let currentImageId = null;
+import { showLoading, hideLoading } from '../loading';
+import { resizeCanvas, initializeCanvas, canvas } from '../preview';
+
+export let currentImageId = null;
 let uploadedFileName = null;
 
 function initialize() {
@@ -6,8 +9,11 @@ function initialize() {
     loadCurrentImageName();
     if (currentImageId) {
         fetchImage(currentImageId);
+        resizeCanvas();
+    } else {
+        hideLoading();
+        console.log("Нет текущего ID изображения");
     }
-    resizeCanvas();
 }
 
 function loadCurrentImageId() {
@@ -28,7 +34,7 @@ window.addEventListener('load', initialize);
 
 const saveButton = document.getElementById('saveButton');
 
-function handleFiles(files) {
+export function handleFiles(files) {
     const formData = new FormData();
     formData.append("image", files[0]);
 
@@ -59,8 +65,8 @@ function handleFiles(files) {
     });
 }
 
-function fetchImage(id) {
-    showLoading()
+export function fetchImage(id) {
+    showLoading();
     const timestamp = new Date().getTime();
     fetch(`http://localhost:8080/api/images/${id}?t=${timestamp}`)
         .then(response => {
@@ -70,29 +76,41 @@ function fetchImage(id) {
             return response.blob();
         })
         .then(imageBlob => {
-            hideLoading()
+            hideLoading();
             const imageURL = URL.createObjectURL(imageBlob);
             initializeCanvas(imageURL);
-
+            
             const upload_modal = document.getElementById("upload-modal");
             upload_modal.style.display = 'none';
         })
         .catch(error => {
-            hideLoading()
+            hideLoading();
             console.error("Ошибка:", error);
         });
 }
 
-saveButton.addEventListener('click', function() {
-    const canvas = document.getElementById('canvas');
+saveButton.addEventListener('click', function () {
+    if (canvas && canvas.getObjects().length > 0) {
+        const imageObject = canvas.getObjects()[0];
+        const tempCanvas = document.createElement('canvas');
+        const ctx = tempCanvas.getContext('2d');
 
-    if (canvas) {
-        canvas.toBlob(function(blob) {
+        const imgWidth = imageObject.getScaledWidth();
+        const imgHeight = imageObject.getScaledHeight();
+
+        tempCanvas.width = imgWidth;
+        tempCanvas.height = imgHeight;
+
+        const imgElement = imageObject.getElement();
+
+        ctx.drawImage(imgElement, 0, 0, imgWidth, imgHeight);
+
+        tempCanvas.toBlob(function (blob) {
             if (blob) {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
 
-                const filename = uploadedFileName || 'GOIDAPS.png'; 
+                const filename = uploadedFileName || 'image.png'; 
                 link.download = filename;
 
                 link.click();
@@ -102,6 +120,6 @@ saveButton.addEventListener('click', function() {
             }
         }, 'image/png');
     } else {
-        console.error('Canvas не найден.');
+        console.error('Нет изображения для сохранения.');
     }
 });
