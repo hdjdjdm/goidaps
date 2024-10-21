@@ -42,6 +42,7 @@ header {
         border-bottom: 1px solid white;
         color: $second-accent-color;
         padding: 0 5px;
+        user-select: none;
 
         h1 {
             color: $accent-color;
@@ -142,9 +143,12 @@ header {
         border-radius: 10px;
         text-align: center;
         width: 300px;
+        max-height: 70vh;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        overflow-x: hidden;
+        overflow-y: auto;
 
         form {
             display: flex;
@@ -179,7 +183,8 @@ header {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 10px;
+            margin-bottom: 20px;
 
             li {
                 display: flex;
@@ -188,6 +193,12 @@ header {
     
                 input[type='number'] {
                     width: 50px;
+                    background-color: transparent;
+                    outline: none;
+                    border: none;
+                    color: $text-color;
+                    font-family: "Montserrat Regular", sans-serif;
+                    font-size: 16px;
                 }
             }
         }
@@ -199,15 +210,52 @@ header {
         }
 
         button {
-            outline: none;
-            border: none;
-            background-color: $primary-color;
+            padding: 5px;
+            background-color: $button-color;
             color: $text-color;
-            font-size: 16px;
-            padding: 5px 2px;
-            width: 100px;
+            font-family: "Montserrat Regular", sans-serif;
+            font-size: 14px;
+            border: none;
             border-radius: 5px;
-            margin: 0 auto;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: $button-hover-color;
+            }
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .filter-item {
+            cursor: pointer;
+            padding: 10px;
+            text-align: center;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-item.selected {
+            border-color: #007BFF;
+        }
+        
+        .filter-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            position: sticky;
+            width: 100%;
+            bottom: 0;
+            padding: 10px;
         }
     }
 }

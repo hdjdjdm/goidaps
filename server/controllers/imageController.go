@@ -192,6 +192,30 @@ func CropImageController(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "изображение обрезалось успешно изменено"})
 }
 
+func FilterImageController(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый id"})
+		return
+	}
+
+	filter := c.Param("filter")
+
+	ok, err := services.FilterImage(id, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось обработать изображение"})
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "изображение не найдено"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "изображение успешно обработано"})
+}
+
 func SettingsImageController(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := primitive.ObjectIDFromHex(idParam)

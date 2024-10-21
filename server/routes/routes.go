@@ -17,7 +17,7 @@ func SetupRoutes(router *gin.Engine) {
 		api.POST("/images/resize/:id", controllers.ResizeImageController)
 		api.POST("/images/crop/:id", controllers.CropImageController)
 
-		// api.POST("/images/:id/filters/:filter", controllers.FilterImageController)
+		api.POST("/images/:id/filters/:filter", controllers.FilterImageController)
 		api.POST("/images/:id/settings", controllers.SettingsImageController)
 
 	}

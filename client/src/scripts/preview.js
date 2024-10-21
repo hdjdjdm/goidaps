@@ -134,3 +134,65 @@ function handleMouseWheel(opt) {
     canvas.zoomToPoint(zoomPoint, newZoom);
     canvas.renderAll();
 }
+
+const cropButton = document.getElementById('crop');
+cropButton.addEventListener('click', () => {
+    if (isCropping) {
+        disableCrop();
+    } else {
+        enableCrop();
+    }
+});
+
+function enableCrop() {
+    const fabricImg = canvas.getObjects('image')[0]; // Получаем первое изображение на канвасе
+    if (!fabricImg) {
+        console.error("Нет изображения на канвасе для обрезки.");
+        return;
+    }
+
+    isCropping = true;
+
+    const imgWidth = fabricImg.getScaledWidth();
+    const imgHeight = fabricImg.getScaledHeight();
+    const imgLeft = fabricImg.left;
+    const imgTop = fabricImg.top;
+
+    activeCropRect = new Rect({
+        left: imgLeft,
+        top: imgTop,
+        width: imgWidth,
+        height: imgHeight,
+        fill: 'rgba(0, 0, 0, 0.3)',
+        stroke: 'white',
+        strokeWidth: 2,
+        selectable: true,
+        hasControls: true,
+        lockRotation: true,
+    });
+
+    canvas.add(activeCropRect);
+    canvas.setActiveObject(activeCropRect);
+    canvas.renderAll();
+
+    window.addEventListener('keydown', handleEnterCrop);
+}
+
+function disableCrop() {
+    isCropping = false;
+    canvas.remove(activeCropRect);
+    canvas.renderAll();
+    window.removeEventListener('keydown', handleEnterCrop);
+}
+
+function handleEnterCrop(event) {
+    if (event.key === 'Enter') {
+        const x0 = Math.floor(activeCropRect.left);
+        const y0 = Math.floor(activeCropRect.top);
+        const x1 = Math.floor(x0 + activeCropRect.width);
+        const y1 = Math.floor(y0 + activeCropRect.height);
+
+        cropImage(x0, y0, x1, y1);
+        disableCrop();
+    }
+}

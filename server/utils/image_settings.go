@@ -16,6 +16,11 @@ func Contrast(img image.Image, brightness float64) image.Image {
 	return newImg
 }
 
+func Saturation(img image.Image, saturation float64) image.Image {
+	newImg := imaging.AdjustSaturation(img, saturation)
+	return newImg
+}
+
 func Gamma(img image.Image, gamma float64) image.Image {
 	newImg := imaging.AdjustGamma(img, gamma)
 	return newImg

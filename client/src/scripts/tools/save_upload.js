@@ -67,8 +67,7 @@ export function handleFiles(files) {
 
 export function fetchImage(id) {
     showLoading();
-    const timestamp = new Date().getTime();
-    fetch(`http://localhost:8080/api/images/${id}?t=${timestamp}`)
+    fetch(`http://localhost:8080/api/images/${id}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Ошибка загрузки изображения");

@@ -85,26 +85,26 @@ export function resizeImage(width, height) {
 
 export function cropImage(x0, y0, x1, y1) {
     console.log(x0, y0, x1, y1)
-    // fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({ x0: x0, y0: y0, x1: x1, y1: y1 })
-    // })
-    // .then(response => {
-    //     if (!response.ok) {
-    //         throw new Error('Ошибка при обрезании изображения')
-    //     }
-    //     return response.json()
-    // })
-    // .then(data => {
-    //     console.log('Успешно:', data)
-    //     fetchImage(currentImageId)
-    // })
-    // .catch(error => {
-    //     console.error('Ошибка', error)
-    // })
+    fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ x0: x0, y0: y0, x1: x1, y1: y1 })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при обрезании изображения')
+        }
+        return response.json()
+    })
+    .then(data => {
+        console.log('Успешно:', data)
+        fetchImage(currentImageId)
+    })
+    .catch(error => {
+        console.error('Ошибка', error)
+    })
 }
 
 export function settingImage(filters) {
@@ -114,6 +114,28 @@ export function settingImage(filters) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(filters)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при применении фильтров изображения')
+        }
+        return response.json()
+    })
+    .then(data => {
+        console.log('Успешно:', data)
+        fetchImage(currentImageId)
+    })
+    .catch(error => {
+        console.error('Ошибка', error)
+    })
+}
+
+export function filterImage(filter) {
+    fetch(`http://localhost:8080/api/images/${currentImageId}/filters/${filter}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
     })
     .then(response => {
         if (!response.ok) {

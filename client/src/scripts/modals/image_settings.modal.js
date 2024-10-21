@@ -22,6 +22,11 @@ export function createImageSettingsModal() {
                         <input type="number" id="gamma-value" min="0" max="10" value="1">
                     </li>
                     <li>
+                        <label for="saturation">Насыщенность</label>
+                        <input type="range" id="saturation" name="saturation" min="-100" max="100" value="1">
+                        <input type="number" id="saturation-value" min="-100" max="100" value="0">
+                    </li>
+                    <li>
                         <label for="blur">Размытие</label>
                         <input type="range" id="blur" name="blur" min="0" max="10" value="0">
                         <input type="number" id="blur-value" min="0" max="10" value="0">
@@ -43,6 +48,8 @@ export function createImageSettingsModal() {
     const contrastValue = document.getElementById('contrast-value');
     const gammaRange = document.getElementById('gamma');
     const gammaValue = document.getElementById('gamma-value');
+    const saturationRange = document.getElementById('saturation');
+    const saturationValue = document.getElementById('saturation-value');
     const blurRange = document.getElementById('blur');
     const blurValue = document.getElementById('blur-value');
 
@@ -52,6 +59,8 @@ export function createImageSettingsModal() {
     contrastValue.value = 0;
     gammaRange.value = 1;
     gammaValue.value = 1;
+    saturationRange.value = 0;
+    saturationValue.value = 0;
     blurRange.value = 0;
     blurValue.value = 0;
 
@@ -63,6 +72,9 @@ export function createImageSettingsModal() {
 
     gammaRange.addEventListener('input', () => gammaValue.value = gammaRange.value);
     gammaValue.addEventListener('input', () => gammaRange.value = gammaValue.value);
+
+    saturationRange.addEventListener('input', () => saturationValue.value = saturationRange.value);
+    saturationValue.addEventListener('input', () => saturationRange.value = saturationValue.value);
 
     blurRange.addEventListener('input', () => blurValue.value = blurRange.value);
     blurValue.addEventListener('input', () => blurRange.value = blurValue.value);
@@ -78,6 +90,7 @@ export function createImageSettingsModal() {
             brightness: parseInt(brightnessRange.value),
             contrast: parseInt(contrastRange.value),
             gamma: parseFloat(gammaRange.value),
+            saturation: parseFloat(saturationRange.value),
             blur: parseInt(blurRange.value)
         };
         settingImage(filters);
