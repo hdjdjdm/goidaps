@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"goidaps/models"
 	"goidaps/services"
 	"net/http"
 	"path/filepath"
@@ -189,4 +190,32 @@ func CropImageController(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "изображение обрезалось успешно изменено"})
+}
+
+func SettingsImageController(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый id"})
+		return
+	}
+
+	var params models.SettingsImageParams
+	if err := c.BindJSON(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимые параметры фильтра"})
+		return
+	}
+
+	ok, err := services.SettingsImage(id, params)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось обработать изображение"})
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "изображение не найдено"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "изображение успешно обработано"})
 }

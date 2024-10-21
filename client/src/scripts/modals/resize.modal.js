@@ -7,6 +7,7 @@ resizeModal.className = 'modal';
 resizeModal.innerHTML = `
     <div class="modal-content">
         <form id="resize-form">
+            <h2>Изменить размер</h2>
             <label for="width">Ширина:</label>
             <input type="number" id="width" placeholder="Введите ширину" />
     

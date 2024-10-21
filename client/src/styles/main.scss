@@ -140,8 +140,8 @@ header {
         padding: 20px;
         border: 1px solid #888;
         border-radius: 10px;
-        width: 300px;
         text-align: center;
+        width: 300px;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -174,13 +174,30 @@ header {
                 margin-bottom: 10px;
             }
         }
-        
+
+        .settings {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            li {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+    
+                input[type='number'] {
+                    width: 50px;
+                }
+            }
+        }
+
         .buttons {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
+
         button {
             outline: none;
             border: none;

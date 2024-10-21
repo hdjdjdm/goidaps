@@ -221,3 +221,59 @@ func CropImage(id primitive.ObjectID, x0, y0, x1, y1 int) (bool, error) {
 
 	return true, nil
 }
+
+func SettingsImage(id primitive.ObjectID, params models.SettingsImageParams) (bool, error) {
+	imageRecord, err := storage.GetImageByID(id)
+	if err != nil {
+		return false, err
+	}
+
+	img, err := utils.OpenImage(imageRecord.Path)
+	if err != nil {
+		return false, err
+	}
+
+	var newImg image.Image = img
+
+	if params.Brightness != nil {
+		brightness := *params.Brightness
+		newImg = utils.Brightness(newImg, brightness)
+	}
+
+	if params.Contrast != nil {
+		contrast := *params.Contrast
+		newImg = utils.Contrast(newImg, contrast)
+	}
+
+	if params.Gamma != nil {
+		gamma := *params.Gamma
+		newImg = utils.Gamma(newImg, gamma)
+	}
+
+	if params.Blur != nil {
+		blur := *params.Blur
+		newImg = utils.Blur(newImg, blur)
+	}
+
+	// if params.Grayscale != nil && *params.Grayscale {
+	// 	// Логика применения черно-белого фильтра
+	// 	newImg = applyGrayscale(newImg)
+	// }
+
+	err = utils.SaveImage(imageRecord.Path, newImg, imageRecord.Type)
+	if err != nil {
+		return false, err
+	}
+
+	newHash, err := utils.CalculateImageHash(imageRecord)
+	if err != nil {
+		return false, err
+	}
+
+	err = storage.UpdateImageRecord(id, imageRecord.Path, newHash)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

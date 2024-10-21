@@ -1,11 +1,13 @@
-import { Canvas, FabricImage, Point } from 'fabric';
+import { Canvas, FabricImage, Point, Rect } from 'fabric';
+import { cropImage } from './tools/edit';
 
 const previewContainer = document.querySelector('.preview');
-
 const MIN_CANVAS_SIZE = 300;
 const MAX_CANVAS_SIZE = 3000;
 
 export let canvas;
+let activeCropRect;
+let isCropping = false;
 
 export function resizeCanvas() {
     if (!canvas) return;
@@ -45,23 +47,22 @@ export function initializeCanvas(imageURL) {
         const fabricImg = new FabricImage(imgElement, {
             selectable: false,
         });
-    
+
         canvas.add(fabricImg);
-    
+
         const imgCenterX = fabricImg.getScaledWidth() / 2;
         const imgCenterY = fabricImg.getScaledHeight() / 2;
-        
+
         const canvasCenterX = canvas.getWidth() / 2;
         const canvasCenterY = canvas.getHeight() / 2;
-    
+
         const vpt = canvas.viewportTransform;
         vpt[4] = canvasCenterX - imgCenterX;
         vpt[5] = canvasCenterY - imgCenterY;
-    
+
         canvas.setViewportTransform(vpt);
-    
         canvas.renderAll();
-    
+
         setCanvasEvents();
     };
 
@@ -78,9 +79,11 @@ function setCanvasEvents() {
     let lastPosY;
 
     canvas.on('mouse:down', (opt) => {
-        isDragging = true;
-        lastPosX = opt.e.clientX;
-        lastPosY = opt.e.clientY;
+        if (!isCropping) {
+            isDragging = true;
+            lastPosX = opt.e.clientX;
+            lastPosY = opt.e.clientY;
+        }
     });
 
     canvas.on('mouse:move', (opt) => {
@@ -116,7 +119,7 @@ function handleMouseWheel(opt) {
 
     const delta = opt.e.deltaY;
     let zoom = canvas.getZoom();
-    
+
     let zoomStep = 0.05;
     let newZoom = zoom - (delta > 0 ? zoomStep : -zoomStep);
 
