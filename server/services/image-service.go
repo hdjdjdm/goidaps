@@ -18,13 +18,8 @@ import (
 )
 
 func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
-	dirPath, err := utils.CreateImageDir()
-	if err != nil {
-		return primitive.ObjectID{}, err
-	}
 
 	fileName := filepath.Base(file.Filename)
-	filePath := filepath.Join(dirPath, fileName)
 
 	src, err := file.Open()
 	if err != nil {
@@ -49,6 +44,12 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 		return primitive.ObjectID{}, fmt.Errorf("не удалось сбросить указатель файла: %v", err)
 	}
 
+	dirPath, err := utils.CreateImageDir()
+	if err != nil {
+		return primitive.ObjectID{}, err
+	}
+	filePath := filepath.Join(dirPath, fileName)
+
 	if err := utils.SaveFile(filePath, src); err != nil {
 		return primitive.ObjectID{}, err
 	}
@@ -71,8 +72,6 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
 
 func GetImageByID(id primitive.ObjectID) (*models.Image, error) {
 	collection := db.GetCollection()
-
-	// time.Sleep(1 * time.Second)
 
 	var image models.Image
 	err := collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&image)

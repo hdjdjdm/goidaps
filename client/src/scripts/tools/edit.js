@@ -94,8 +94,6 @@ export function resizeImage(width, height) {
 }
 
 export function cropImage(x0, y0, x1, y1) {
-    console.log(x0, y0, x1, y1);
-    
     showLoading()
     fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
         method: 'POST',

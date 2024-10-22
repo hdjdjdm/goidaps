@@ -13,7 +13,6 @@ resizeModal.innerHTML = `
     
             <label for="height">Высота:</label>
             <input type="number" id="height" placeholder="Введите высоту" />
-    
             <div>
                 <label for="lock-aspect-ratio" class="custom-checkbox">
                     <input type="checkbox" id="lock-aspect-ratio" checked />

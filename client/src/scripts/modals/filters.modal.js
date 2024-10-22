@@ -25,7 +25,7 @@ export function createFilterModal() {
                     </div>
                     <div class="filter-item" data-filter="Colorize">
                         <img src="./assets/filters/colorize.jpg" alt="Colorize" class="filter-thumbnail">
-                        <span>Цветокоррекция</span>
+                        <span>Colorize</span>
                     </div>
                     <div class="filter-item" data-filter="Pixelate">
                         <img src="./assets/filters/pixelate.jpg" alt="Pixelate" class="filter-thumbnail">

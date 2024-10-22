@@ -4,6 +4,8 @@ import { resizeCanvas, initializeCanvas, canvas } from '../preview';
 export let currentImageId = null;
 let uploadedFileName = null;
 
+window.addEventListener('load', initialize);
+
 function initialize() {
     loadCurrentImageId();
     loadCurrentImageName();
@@ -29,10 +31,6 @@ function loadCurrentImageName() {
         console.log("Имя изображения не найдено в localStorage");
     }
 }
-
-window.addEventListener('load', initialize);
-
-const saveButton = document.getElementById('saveButton');
 
 export function handleFiles(files) {
     const formData = new FormData();
@@ -88,7 +86,7 @@ export function fetchImage(id) {
         });
 }
 
-saveButton.addEventListener('click', function () {
+document.getElementById('saveButton').addEventListener('click', function () {
     if (canvas && canvas.getObjects().length > 0) {
         const imageObject = canvas.getObjects()[0];
         const tempCanvas = document.createElement('canvas');
