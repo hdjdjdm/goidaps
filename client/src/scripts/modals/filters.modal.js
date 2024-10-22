@@ -12,7 +12,7 @@ export function createFilterModal() {
                 <h2>Выберите фильтр</h2>
                 <div class="filter-grid">
                     <div class="filter-item" data-filter="ColorBalance">
-                        <img src="./assets/filters/grayscale.jpg" alt="Grayscale" class="filter-thumbnail">
+                        <img src="./assets/filters/colorBalance.jpg" alt="ColorBalance" class="filter-thumbnail">
                         <span>Цветовой баланс</span>
                     </div>
                     <div class="filter-item" data-filter="Grayscale">
@@ -20,23 +20,23 @@ export function createFilterModal() {
                         <span>Ч/Б</span>
                     </div>
                     <div class="filter-item" data-filter="Invert">
-                        <img src="./assets/filters/grayscale.jpg" alt="Invert" class="filter-thumbnail">
+                        <img src="./assets/filters/invert.jpg" alt="Invert" class="filter-thumbnail">
                         <span>Инверсия</span>
                     </div>
                     <div class="filter-item" data-filter="Colorize">
-                        <img src="./assets/filters/grayscale.jpg" alt="Colorize" class="filter-thumbnail">
+                        <img src="./assets/filters/colorize.jpg" alt="Colorize" class="filter-thumbnail">
                         <span>Цветокоррекция</span>
                     </div>
                     <div class="filter-item" data-filter="Pixelate">
-                        <img src="./assets/filters/grayscale.jpg" alt="Colorize" class="filter-thumbnail">
+                        <img src="./assets/filters/pixelate.jpg" alt="Pixelate" class="filter-thumbnail">
                         <span>Пикселизация</span>
                     </div>
                     <div class="filter-item" data-filter="Sepia">
-                        <img src="./assets/filters/grayscale.jpg" alt="Colorize" class="filter-thumbnail">
+                        <img src="./assets/filters/sepia.jpg" alt="Sepia" class="filter-thumbnail">
                         <span>Сепия</span>
                     </div>
                     <div class="filter-item" data-filter="Sigmoid">
-                        <img src="./assets/filters/grayscale.jpg" alt="Colorize" class="filter-thumbnail">
+                        <img src="./assets/filters/sigmoid.jpg" alt="Sigmoid" class="filter-thumbnail">
                         <span>Сигмоида</span>
                     </div>
                 </div>
@@ -80,7 +80,7 @@ export function createFilterModal() {
         },
         Pixelate: { showSettings: true,
             params: [
-                { name: 'param1', label: 'Размер пикселя', min: 0, max: 20, default: 0}
+                { name: 'param1', label: 'Размер пикселя', min: 0, max: 50, default: 0}
             ]
         },
         Sepia: { showSettings: true,
