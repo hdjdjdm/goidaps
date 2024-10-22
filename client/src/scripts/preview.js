@@ -1,13 +1,12 @@
-import { Canvas, FabricImage, Point, Rect } from 'fabric';
-import { cropImage } from './tools/edit';
+import { Canvas, FabricImage, Point } from 'fabric';
+import { enableCrop, disableCrop } from './tools/crop';
 
 const previewContainer = document.querySelector('.preview');
 const MIN_CANVAS_SIZE = 300;
 const MAX_CANVAS_SIZE = 3000;
 
 export let canvas;
-let activeCropRect;
-let isCropping = false;
+let activeCropRect = null;
 
 export function resizeCanvas() {
     if (!canvas) return;
@@ -79,7 +78,7 @@ function setCanvasEvents() {
     let lastPosY;
 
     canvas.on('mouse:down', (opt) => {
-        if (!isCropping) {
+        if (!activeCropRect) {
             isDragging = true;
             lastPosX = opt.e.clientX;
             lastPosY = opt.e.clientY;
@@ -116,11 +115,12 @@ function removeCanvasEvents() {
 }
 
 function handleKeyPress(event) {
-    if (isCropping && event.key === 'Escape') {
-        disableCrop();
+    if (activeCropRect && event.key === 'Escape') {
+        disableCrop(canvas, activeCropRect);
+        activeCropRect = null;
     }
 
-    if (!isCropping) {
+    if (!activeCropRect) {
         const moveStep = 10;
 
         switch (event.key) {
@@ -172,83 +172,23 @@ function handleMouseWheel(opt) {
 
 const cropButton = document.getElementById('crop');
 cropButton.addEventListener('click', () => {
-    if (isCropping) {
-        disableCrop();
+    if (activeCropRect) {
+        disableCrop(canvas, activeCropRect);
+        activeCropRect = null;
     } else {
-        enableCrop();
+        activeCropRect = enableCrop(canvas, 'custom');
     }
 });
 
-function enableCrop() {
-    const fabricImg = canvas.getObjects('image')[0];
-    if (!fabricImg) {
-        console.error("Нет изображения на канвасе для обрезки.");
-        return;
-    }
-
-    isCropping = true;
-
-    const imgWidth = fabricImg.getScaledWidth();
-    const imgHeight = fabricImg.getScaledHeight();
-    const imgLeft = fabricImg.left;
-    const imgTop = fabricImg.top;
-
-    activeCropRect = new Rect({
-        left: imgLeft,
-        top: imgTop,
-        width: imgWidth,
-        height: imgHeight,
-        fill: 'rgba(0, 0, 0, 0.3)',
-        stroke: 'white',
-        strokeWidth: 2,
-        selectable: true,
-        hasControls: true,
-        lockRotation: true,
-    });
-
-    canvas.add(activeCropRect);
-    canvas.setActiveObject(activeCropRect);
-    canvas.renderAll();
-
-    window.addEventListener('keydown', handleEnterCrop);
-}
-
-function disableCrop() {
-    isCropping = false;
-    canvas.remove(activeCropRect);
-    canvas.renderAll();
-    window.removeEventListener('keydown', handleEnterCrop);
-}
-
-function handleEnterCrop(event) {
-    if (event.key === 'Enter') {
-        if (!activeCropRect) return;
-
-        const fabricImg = canvas.getObjects('image')[0];
-        if (!fabricImg) {
-            console.error("Нет изображения на канвасе для обрезки.");
-            return;
-        }
-
-        const imgBoundingRect = fabricImg.getBoundingRect();
-        const boundingRect = activeCropRect.getBoundingRect();
-
-        const x0 = Math.max(Math.floor(boundingRect.left), imgBoundingRect.left);
-        const y0 = Math.max(Math.floor(boundingRect.top), imgBoundingRect.top);
-        const x1 = Math.min(Math.floor(boundingRect.left + boundingRect.width), imgBoundingRect.left + imgBoundingRect.width);
-        const y1 = Math.min(Math.floor(boundingRect.top + boundingRect.height), imgBoundingRect.top + imgBoundingRect.height);
-
-        const cropWidth = x1 - x0;
-        const cropHeight = y1 - y0;
-        const imgWidth = imgBoundingRect.width;
-        const imgHeight = imgBoundingRect.height;
-
-        if (cropWidth === imgWidth && cropHeight === imgHeight) {
-            disableCrop();
-            return;
-        }
-
-        cropImage(x0, y0, x1, y1);
-        disableCrop();
-    }
-}
+document.getElementById('crop_1_1').addEventListener('click', () => {
+    activeCropRect = enableCrop(canvas, '1:1');
+});
+document.getElementById('crop_4_3').addEventListener('click', () => {
+    activeCropRect = enableCrop(canvas, '4:3');
+});
+document.getElementById('crop_16_9').addEventListener('click', () => {
+    activeCropRect = enableCrop(canvas, '16:9');
+});
+document.getElementById('crop_16_10').addEventListener('click', () => {
+    activeCropRect = enableCrop(canvas, '16:10');
+});
