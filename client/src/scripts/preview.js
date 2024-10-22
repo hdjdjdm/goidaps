@@ -74,28 +74,27 @@ function setCanvasEvents() {
     canvas.on('mouse:wheel', handleMouseWheel);
 
     let isDragging = false;
-    let lastPosX;
-    let lastPosY;
+    let lastPosX, lastPosY;
 
     canvas.on('mouse:down', (opt) => {
         if (!activeCropRect) {
             isDragging = true;
-            lastPosX = opt.e.clientX;
-            lastPosY = opt.e.clientY;
+            lastPosX = opt.e.clientX || opt.e.touches[0].clientX;
+            lastPosY = opt.e.clientY || opt.e.touches[0].clientY;
         }
     });
 
     canvas.on('mouse:move', (opt) => {
         if (isDragging) {
-            const deltaX = opt.e.clientX - lastPosX;
-            const deltaY = opt.e.clientY - lastPosY;
+            const deltaX = (opt.e.clientX || opt.e.touches[0].clientX) - lastPosX;
+            const deltaY = (opt.e.clientY || opt.e.touches[0].clientY) - lastPosY;
 
             let vpt = canvas.viewportTransform;
             vpt[4] += deltaX;
             vpt[5] += deltaY;
 
-            lastPosX = opt.e.clientX;
-            lastPosY = opt.e.clientY;
+            lastPosX = opt.e.clientX || opt.e.touches[0].clientX;
+            lastPosY = opt.e.clientY || opt.e.touches[0].clientY;
             canvas.renderAll();
         }
     });
@@ -104,7 +103,19 @@ function setCanvasEvents() {
         isDragging = false;
     });
 
-    window.addEventListener('keydown', handleKeyPress);
+    canvas.on('touch:gesture', handleTouchGesture);
+}
+
+function handleTouchGesture(event) {
+    const scaleFactor = event.e.scale;
+    const zoom = canvas.getZoom();
+    const newZoom = zoom * scaleFactor;
+
+    if (newZoom > 5) newZoom = 5;
+    if (newZoom < 0.5) newZoom = 0.5;
+
+    canvas.zoomToPoint({ x: event.self.x, y: event.self.y }, newZoom);
+    canvas.renderAll();
 }
 
 function removeCanvasEvents() {
