@@ -162,10 +162,10 @@ func CropImageController(c *gin.Context) {
 	}
 
 	var cropRequest struct {
-		X0 int `json:"x0" binding:"required"`
-		Y0 int `json:"y0" binding:"required"`
-		X1 int `json:"x1" binding:"required"`
-		Y1 int `json:"y1" binding:"required"`
+		X0 *int `json:"x0"`
+		Y0 *int `json:"y0"`
+		X1 *int `json:"x1"`
+		Y1 *int `json:"y1" `
 	}
 
 	if err := c.ShouldBindJSON(&cropRequest); err != nil {
@@ -173,12 +173,32 @@ func CropImageController(c *gin.Context) {
 		return
 	}
 
-	if cropRequest.X0 < 0 || cropRequest.Y0 < 0 || cropRequest.X1 < 0 || cropRequest.Y1 < 0 {
+	x0 := int(0)
+	if cropRequest.X0 != nil {
+		x0 = *cropRequest.X0
+	}
+
+	y0 := int(0)
+	if cropRequest.Y0 != nil {
+		y0 = *cropRequest.Y0
+	}
+
+	x1 := int(0)
+	if cropRequest.X1 != nil {
+		x0 = *cropRequest.X1
+	}
+
+	y1 := int(0)
+	if cropRequest.Y1 != nil {
+		y1 = *cropRequest.Y1
+	}
+
+	if x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "координаты должны быть положительными значениями"})
 		return
 	}
 
-	ok, err := services.CropImage(id, cropRequest.X0, cropRequest.Y0, cropRequest.X1, cropRequest.Y1)
+	ok, err := services.CropImage(id, x0, y0, x1, y1)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось обрезать изображение"})
 		return
@@ -202,7 +222,33 @@ func FilterImageController(c *gin.Context) {
 
 	filter := c.Param("filter")
 
-	ok, err := services.FilterImage(id, filter)
+	var filterRequest struct {
+		Param1 *float32 `json:"param1,omitempty"`
+		Param2 *float32 `json:"param2,omitempty"`
+		Param3 *float32 `json:"param3,omitempty"`
+	}
+
+	if err := c.ShouldBindJSON(&filterRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "неверный формат данных"})
+		return
+	}
+
+	param1 := float32(0)
+	if filterRequest.Param1 != nil {
+		param1 = *filterRequest.Param1
+	}
+
+	param2 := float32(0)
+	if filterRequest.Param2 != nil {
+		param2 = *filterRequest.Param2
+	}
+
+	param3 := float32(0)
+	if filterRequest.Param3 != nil {
+		param3 = *filterRequest.Param3
+	}
+
+	ok, err := services.FilterImage(id, filter, param1, param2, param3)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось обработать изображение"})
 		return

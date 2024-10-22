@@ -201,9 +201,6 @@ func CropImage(id primitive.ObjectID, x0, y0, x1, y1 int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	imgBounds := img.Bounds()
-	fmt.Printf("Исходные размеры изображения: %dx%d\n", imgBounds.Dx(), imgBounds.Dy())
-	fmt.Printf("Координаты обрезки: x0=%d, y0=%d, x1=%d, y1=%d\n", x0, y0, x1, y1)
 
 	newImg := imaging.Crop(img, image.Rect(x0, y0, x1, y1))
 
@@ -281,7 +278,7 @@ func SettingsImage(id primitive.ObjectID, params models.SettingsImageParams) (bo
 	return true, nil
 }
 
-func FilterImage(id primitive.ObjectID, filter string) (bool, error) {
+func FilterImage(id primitive.ObjectID, filter string, param1, param2, param3 float32) (bool, error) {
 	imageRecord, err := storage.GetImageByID(id)
 	if err != nil {
 		return false, err
@@ -300,7 +297,15 @@ func FilterImage(id primitive.ObjectID, filter string) (bool, error) {
 	case "Invert":
 		newImg = utils.Invert(newImg)
 	case "Colorize":
-		newImg = utils.Colorize(newImg)
+		newImg = utils.Colorize(newImg, param1, param2, param3)
+	case "Pixelate":
+		newImg = utils.Pixelate(newImg, param1)
+	case "Sepia":
+		newImg = utils.Sepia(newImg, param1)
+	case "Sigmoid":
+		newImg = utils.Sigmoid(newImg, param1, param2)
+	case "ColorBalance":
+		newImg = utils.ColorBalance(newImg, param1, param2, param3)
 	default:
 		return false, fmt.Errorf("неизвестный фильтр: %v", filter)
 	}

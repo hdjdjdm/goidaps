@@ -1,3 +1,4 @@
+import { hideLoading, showLoading } from "../loading";
 import { currentImageId, fetchImage } from "./save_upload";
 
 document.getElementById('flip-x').addEventListener('click', () => {
@@ -17,6 +18,7 @@ document.getElementById('rotate-right').addEventListener('click', () => {
 })
 
 function flipImage(direction) {
+    showLoading()
     fetch(`http://localhost:8080/api/images/flip/${currentImageId}/${direction}`, {
         method: 'POST',
         headers: {
@@ -24,6 +26,7 @@ function flipImage(direction) {
         },
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при отзеркаливании изображения');
         }
@@ -34,11 +37,13 @@ function flipImage(direction) {
         fetchImage(currentImageId);
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка:', error);
     })
 }
 
 function rotateImage(direction) {
+    showLoading()
     fetch(`http://localhost:8080/api/images/rotate/${currentImageId}/${direction}`, {
         method: 'POST',
         headers: {
@@ -46,6 +51,7 @@ function rotateImage(direction) {
         }
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при повороте изображения')
         }
@@ -56,11 +62,13 @@ function rotateImage(direction) {
         fetchImage(currentImageId)
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка:', error)
     })
 }
 
 export function resizeImage(width, height) {
+    showLoading()
     fetch(`http://localhost:8080/api/images/resize/${currentImageId}`, {
         method: 'POST',
         headers: {
@@ -69,6 +77,7 @@ export function resizeImage(width, height) {
         body: JSON.stringify({ width: width, height: height })
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при изменении размера изображения')
         }
@@ -79,12 +88,15 @@ export function resizeImage(width, height) {
         fetchImage(currentImageId)
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка', error)
     })
 }
 
 export function cropImage(x0, y0, x1, y1) {
-    console.log(x0, y0, x1, y1)
+    console.log(x0, y0, x1, y1);
+    
+    showLoading()
     fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
         method: 'POST',
         headers: {
@@ -93,6 +105,7 @@ export function cropImage(x0, y0, x1, y1) {
         body: JSON.stringify({ x0: x0, y0: y0, x1: x1, y1: y1 })
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при обрезании изображения')
         }
@@ -103,11 +116,13 @@ export function cropImage(x0, y0, x1, y1) {
         fetchImage(currentImageId)
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка', error)
     })
 }
 
 export function settingImage(filters) {
+    showLoading()
     fetch(`http://localhost:8080/api/images/${currentImageId}/settings`, {
         method: 'POST',
         headers: {
@@ -116,6 +131,7 @@ export function settingImage(filters) {
         body: JSON.stringify(filters)
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при применении фильтров изображения')
         }
@@ -126,18 +142,22 @@ export function settingImage(filters) {
         fetchImage(currentImageId)
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка', error)
     })
 }
 
-export function filterImage(filter) {
+export function filterImage(filter, filterParams) {
+    showLoading()
     fetch(`http://localhost:8080/api/images/${currentImageId}/filters/${filter}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
+        body: JSON.stringify(filterParams)
     })
     .then(response => {
+        hideLoading()
         if (!response.ok) {
             throw new Error('Ошибка при применении фильтров изображения')
         }
@@ -148,6 +168,7 @@ export function filterImage(filter) {
         fetchImage(currentImageId)
     })
     .catch(error => {
+        hideLoading()
         console.error('Ошибка', error)
     })
 }

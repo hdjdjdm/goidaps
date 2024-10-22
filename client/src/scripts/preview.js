@@ -104,6 +104,8 @@ function setCanvasEvents() {
     canvas.on('mouse:up', () => {
         isDragging = false;
     });
+
+    window.addEventListener('keydown', handleKeyPress);
 }
 
 function removeCanvasEvents() {
@@ -111,6 +113,39 @@ function removeCanvasEvents() {
     canvas.off('mouse:down');
     canvas.off('mouse:move');
     canvas.off('mouse:up');
+}
+
+function handleKeyPress(event) {
+    if (isCropping && event.key === 'Escape') {
+        disableCrop();
+    }
+
+    if (!isCropping) {
+        const moveStep = 10;
+
+        switch (event.key) {
+            case 'ArrowUp':
+                moveCanvas(0, moveStep);
+                break;
+            case 'ArrowDown':
+                moveCanvas(0, -moveStep);
+                break;
+            case 'ArrowLeft':
+                moveCanvas(moveStep, 0);
+                break;
+            case 'ArrowRight':
+                moveCanvas(-moveStep, 0);
+                break;
+        }
+    }
+}
+
+function moveCanvas(deltaX, deltaY) {
+    let vpt = canvas.viewportTransform;
+    vpt[4] += deltaX;
+    vpt[5] += deltaY;
+    canvas.setViewportTransform(vpt);
+    canvas.renderAll();
 }
 
 function handleMouseWheel(opt) {
@@ -145,7 +180,7 @@ cropButton.addEventListener('click', () => {
 });
 
 function enableCrop() {
-    const fabricImg = canvas.getObjects('image')[0]; // Получаем первое изображение на канвасе
+    const fabricImg = canvas.getObjects('image')[0];
     if (!fabricImg) {
         console.error("Нет изображения на канвасе для обрезки.");
         return;
@@ -187,10 +222,31 @@ function disableCrop() {
 
 function handleEnterCrop(event) {
     if (event.key === 'Enter') {
-        const x0 = Math.floor(activeCropRect.left);
-        const y0 = Math.floor(activeCropRect.top);
-        const x1 = Math.floor(x0 + activeCropRect.width);
-        const y1 = Math.floor(y0 + activeCropRect.height);
+        if (!activeCropRect) return;
+
+        const fabricImg = canvas.getObjects('image')[0];
+        if (!fabricImg) {
+            console.error("Нет изображения на канвасе для обрезки.");
+            return;
+        }
+
+        const imgBoundingRect = fabricImg.getBoundingRect();
+        const boundingRect = activeCropRect.getBoundingRect();
+
+        const x0 = Math.max(Math.floor(boundingRect.left), imgBoundingRect.left);
+        const y0 = Math.max(Math.floor(boundingRect.top), imgBoundingRect.top);
+        const x1 = Math.min(Math.floor(boundingRect.left + boundingRect.width), imgBoundingRect.left + imgBoundingRect.width);
+        const y1 = Math.min(Math.floor(boundingRect.top + boundingRect.height), imgBoundingRect.top + imgBoundingRect.height);
+
+        const cropWidth = x1 - x0;
+        const cropHeight = y1 - y0;
+        const imgWidth = imgBoundingRect.width;
+        const imgHeight = imgBoundingRect.height;
+
+        if (cropWidth === imgWidth && cropHeight === imgHeight) {
+            disableCrop();
+            return;
+        }
 
         cropImage(x0, y0, x1, y1);
         disableCrop();

@@ -23,7 +23,7 @@ export function createImageSettingsModal() {
                     </li>
                     <li>
                         <label for="saturation">Насыщенность</label>
-                        <input type="range" id="saturation" name="saturation" min="-100" max="100" value="1">
+                        <input type="range" id="saturation" name="saturation" min="-100" max="100" value="0">
                         <input type="number" id="saturation-value" min="-100" max="100" value="0">
                     </li>
                     <li>
@@ -64,20 +64,38 @@ export function createImageSettingsModal() {
     blurRange.value = 0;
     blurValue.value = 0;
 
+    function validateNumberInput(input, rangeInput, min, max) {
+        let value = parseFloat(input.value);
+        if (value < min) value = min;
+        if (value > max) value = max;
+        input.value = value;
+        rangeInput.value = value;
+    }
+
     brightnessRange.addEventListener('input', () => brightnessValue.value = brightnessRange.value);
-    brightnessValue.addEventListener('input', () => brightnessRange.value = brightnessValue.value);
+    brightnessValue.addEventListener('input', () => {
+        validateNumberInput(brightnessValue, brightnessRange, -100, 100);
+    });
 
     contrastRange.addEventListener('input', () => contrastValue.value = contrastRange.value);
-    contrastValue.addEventListener('input', () => contrastRange.value = contrastValue.value);
+    contrastValue.addEventListener('input', () => {
+        validateNumberInput(contrastValue, contrastRange, -100, 100);
+    });
 
     gammaRange.addEventListener('input', () => gammaValue.value = gammaRange.value);
-    gammaValue.addEventListener('input', () => gammaRange.value = gammaValue.value);
+    gammaValue.addEventListener('input', () => {
+        validateNumberInput(gammaValue, gammaRange, 0, 10);
+    });
 
     saturationRange.addEventListener('input', () => saturationValue.value = saturationRange.value);
-    saturationValue.addEventListener('input', () => saturationRange.value = saturationValue.value);
+    saturationValue.addEventListener('input', () => {
+        validateNumberInput(saturationValue, saturationRange, -100, 100);
+    });
 
     blurRange.addEventListener('input', () => blurValue.value = blurRange.value);
-    blurValue.addEventListener('input', () => blurRange.value = blurValue.value);
+    blurValue.addEventListener('input', () => {
+        validateNumberInput(blurValue, blurRange, 0, 10);
+    });
 
     window.addEventListener('click', function (event) {
         if (event.target === modal) {
