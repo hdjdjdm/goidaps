@@ -1,5 +1,8 @@
+import config from "../../config";
 import { hideLoading, showLoading } from "../loading";
 import { currentImageId, fetchImage } from "./save_upload";
+
+const apiUrl = config.API_URL;
 
 document.getElementById('flip-x').addEventListener('click', () => {
     flipImage('x');
@@ -19,7 +22,7 @@ document.getElementById('rotate-right').addEventListener('click', () => {
 
 function flipImage(direction) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/flip/${currentImageId}/${direction}`, {
+    fetch(`${apiUrl}/api/images/flip/${currentImageId}/${direction}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -44,7 +47,7 @@ function flipImage(direction) {
 
 function rotateImage(direction) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/rotate/${currentImageId}/${direction}`, {
+    fetch(`${apiUrl}/api/images/rotate/${currentImageId}/${direction}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -69,7 +72,7 @@ function rotateImage(direction) {
 
 export function resizeImage(width, height) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/resize/${currentImageId}`, {
+    fetch(`${apiUrl}/api/images/resize/${currentImageId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -95,7 +98,7 @@ export function resizeImage(width, height) {
 
 export function cropImage(x0, y0, x1, y1) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/crop/${currentImageId}`, {
+    fetch(`${apiUrl}/api/images/crop/${currentImageId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -121,7 +124,7 @@ export function cropImage(x0, y0, x1, y1) {
 
 export function settingImage(filters) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/${currentImageId}/settings`, {
+    fetch(`${apiUrl}/api/images/${currentImageId}/settings`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -147,7 +150,7 @@ export function settingImage(filters) {
 
 export function filterImage(filter, filterParams) {
     showLoading()
-    fetch(`http://localhost:8080/api/images/${currentImageId}/filters/${filter}`, {
+    fetch(`${apiUrl}/api/images/${currentImageId}/filters/${filter}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

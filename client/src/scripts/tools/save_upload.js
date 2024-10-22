@@ -1,6 +1,8 @@
+import config from '../../config';
 import { showLoading, hideLoading } from '../loading';
 import { resizeCanvas, initializeCanvas, canvas } from '../preview';
 
+const apiUrl = config.API_URL;
 export let currentImageId = null;
 let uploadedFileName = null;
 
@@ -36,7 +38,7 @@ export function handleFiles(files) {
     const formData = new FormData();
     formData.append("image", files[0]);
 
-    fetch('http://localhost:8080/api/images/upload', {
+    fetch(`${apiUrl}/api/images/upload`, {
         method: 'POST',
         body: formData,
     })
@@ -65,7 +67,7 @@ export function handleFiles(files) {
 
 export function fetchImage(id) {
     showLoading();
-    fetch(`http://localhost:8080/api/images/${id}`)
+    fetch(`${apiUrl}/api/images/${id}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Ошибка загрузки изображения");
