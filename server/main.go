@@ -27,7 +27,7 @@ func main() {
 	routes.SetupRoutes(router) // Установка путей
 
 	// Запуск сервера на указанном хосте и порте
-	if err := router.Run("http://195.133.76.13/"); err != nil {
+	if err := router.Run("195.133.76.13:8080"); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 }
