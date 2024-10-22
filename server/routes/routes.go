@@ -7,6 +7,10 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
+	router.GET("/", func(c *gin.Context) {
+		c.File("../client/dist/index.html")
+	})
+
 	api := router.Group("/api")
 	{
 		api.POST("/images/upload", controllers.UploadImageController)
@@ -19,6 +23,5 @@ func SetupRoutes(router *gin.Engine) {
 
 		api.POST("/images/:id/filters/:filter", controllers.FilterImageController)
 		api.POST("/images/:id/settings", controllers.SettingsImageController)
-
 	}
 }

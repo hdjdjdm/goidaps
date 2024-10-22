@@ -10,10 +10,11 @@ import (
 )
 
 func main() {
-	db.Connect()
+	db.Connect() // Подключение к бд
 
-	router := gin.Default()
+	router := gin.Default() // Инициализация роутера
 
+	// Настройка для CORS
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8081"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
@@ -21,8 +22,11 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	routes.SetupRoutes(router)
+	router.Static("/static", "../client/dist") // Статические файлы
 
+	routes.SetupRoutes(router) // Установка путей
+
+	// Запуск сервера на указанном хосте и порте
 	if err := router.Run("localhost:8080"); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}

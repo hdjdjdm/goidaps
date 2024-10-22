@@ -8,7 +8,7 @@ uploadModal.innerHTML = `
         <form id="uploadForm" enctype="multipart/form-data">
             <h2>Загрузить фото</h2>
             <div class="upload-area" id="uploadArea">
-                <img src="./assets/icons/file-upload.svg" alt="Upload" class="upload-icon" id="svg" />
+                <img src="/static/assets/icons/file-upload.svg" alt="Upload" class="upload-icon" id="svg" />
                 <span>Перетащите изображение сюда или нажмите для загрузки</span>
                 <input type="file" id="fileInput" accept="image/*" required hidden />
             </div>
