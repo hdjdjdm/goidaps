@@ -1,11 +1,14 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"goidaps/models"
 	"image"
 	"io"
 	"math/rand"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -106,4 +109,13 @@ func CalculateImageHash(imageRecord models.Image) (string, error) {
 	}
 
 	return newHash, nil
+}
+
+func CalculateFileHash(file multipart.File) (string, error) {
+	hash := sha256.New()
+	_, err := io.Copy(hash, file)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }

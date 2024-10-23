@@ -35,13 +35,13 @@ func UploadImageController(c *gin.Context) {
 		return
 	}
 
-	imageID, err := services.UploadImage(file)
+	imageID, imageType, err := services.UploadImage(file)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "изображение загружено", "id": imageID})
+	c.JSON(http.StatusOK, gin.H{"message": "изображение загружено", "id": imageID, "type": imageType})
 }
 
 func GetImageController(c *gin.Context) {
@@ -150,7 +150,7 @@ func ResizeImageController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "размер изображения успешно изменено"})
+	c.JSON(http.StatusOK, gin.H{"message": "размер изображения успешно изменен"})
 }
 
 func CropImageController(c *gin.Context) {
@@ -209,7 +209,7 @@ func CropImageController(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "изображение обрезалось успешно изменено"})
+	c.JSON(http.StatusOK, gin.H{"message": "изображение обрезалось успешно"})
 }
 
 func FilterImageController(c *gin.Context) {

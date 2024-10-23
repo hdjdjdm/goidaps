@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"mime/multipart"
+	"net/http"
 	"path/filepath"
 
 	"goidaps/db"
@@ -17,57 +18,64 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, error) {
+func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, string, error) {
 
 	fileName := filepath.Base(file.Filename)
 
 	src, err := file.Open()
 	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось открыть файл: %v", err)
+		return primitive.ObjectID{}, "", fmt.Errorf("не удалось открыть файл: %v", err)
 	}
 	defer src.Close()
 
+	buf := make([]byte, 512)
+	_, err = src.Read(buf)
+	if err != nil {
+		return primitive.ObjectID{}, "", err
+	}
+	fileType := http.DetectContentType(buf)
+
 	hash, err := utils.CalculateFileHash(src)
 	if err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось вычислить хэш: %v", err)
+		return primitive.ObjectID{}, "", fmt.Errorf("не удалось вычислить хэш: %v", err)
 	}
 
 	existingImage, found, err := storage.FindExistingImage(fileName, hash)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.ObjectID{}, "", err
 	}
 	if found {
-		return existingImage.ID, nil
+		return existingImage.ID, "", nil
 	}
 
 	if _, err := src.Seek(0, 0); err != nil {
-		return primitive.ObjectID{}, fmt.Errorf("не удалось сбросить указатель файла: %v", err)
+		return primitive.ObjectID{}, "", fmt.Errorf("не удалось сбросить указатель файла: %v", err)
 	}
 
 	dirPath, err := utils.CreateImageDir()
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.ObjectID{}, "", err
 	}
 	filePath := filepath.Join(dirPath, fileName)
 
 	if err := utils.SaveFile(filePath, src); err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.ObjectID{}, "", err
 	}
 
 	image := models.Image{
 		Name: fileName,
 		Path: filePath,
 		Size: file.Size,
-		Type: file.Header.Get("Content-Type"),
+		Type: fileType,
 		Hash: hash,
 	}
 
 	imageID, err := storage.InsertImage(image)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return primitive.ObjectID{}, "", err
 	}
 
-	return imageID, nil
+	return imageID, fileType, nil
 }
 
 func GetImageByID(id primitive.ObjectID) (*models.Image, error) {
