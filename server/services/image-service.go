@@ -40,13 +40,13 @@ func UploadImage(file *multipart.FileHeader) (primitive.ObjectID, string, error)
 		return primitive.ObjectID{}, "", fmt.Errorf("не удалось вычислить хэш: %v", err)
 	}
 
-	existingImage, found, err := storage.FindExistingImage(fileName, hash)
-	if err != nil {
-		return primitive.ObjectID{}, "", err
-	}
-	if found {
-		return existingImage.ID, "", nil
-	}
+	// existingImage, found, err := storage.FindExistingImage(fileName, hash)
+	// if err != nil {
+	// 	return primitive.ObjectID{}, "", err
+	// }
+	// if found {
+	// 	return existingImage.ID, "", nil
+	// }
 
 	if _, err := src.Seek(0, 0); err != nil {
 		return primitive.ObjectID{}, "", fmt.Errorf("не удалось сбросить указатель файла: %v", err)
